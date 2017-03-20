@@ -1,0 +1,13 @@
+mosquitto:
+  image: eclipse-mosquitto:1.4.8
+#  volumes:
+#    - mosquitto.conf:/mosquitto/data/mosquitto.conf
+  ports:
+    - 1883:1883
+
+influxdb:
+  image: influxdb:1.2.2
+  ports:
+    - 8086:8086
+  volumes:
+    - influxdb:/var/lib/influxdb

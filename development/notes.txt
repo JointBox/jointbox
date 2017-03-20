@@ -1,0 +1,20 @@
+One Wire
+---------
+
+For some reason 1-wire doesn't work on default pin (GPIO 10) so I remapped it to use GPIO 12.
+Required modules are:
+    w1-sunxi
+    w1-gpio
+    w1-therm
+Module `gpio_sunxi` is not required.
+In order to pass parameter you should create or edit existing config file. Eg:
+```
+$ cat /etc/modprobe.d/w1.conf
+options w1-sunxi gpio=12
+```
+
+Orange PI links
+---------------
+PINOUT: http://integrator.adior.ru/index.php/orangepi/478-orange-pi-gpio-sysfs
+https://pypi.python.org/pypi/pyA20
+OPI GPIO: https://github.com/duxingkei33/orangepi_PC_gpio_pyH3/blob/master/examples/read_button.py

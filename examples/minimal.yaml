@@ -1,0 +1,6 @@
+instance:
+  id: "controller-1"
+
+devices:
+  my_logger:
+    module_name: Logger
