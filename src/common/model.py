@@ -146,14 +146,6 @@ class ModelState(object):
 
 
 class Module:
-    EVENTS = []
-    ACTIONS = []  # type: List[ActionDef]
-    PARAMS = []  # type: List[ParameterDef]
-    REQUIRED_DRIVERS = []
-    IN_LOOP = True  # Indicates that instance of of this module will be queried (step method) in main application loop
-    IN_BACKGROUND = False
-    MINIMAL_ITERATION_INTERVAL = 0  # Minimum interval between iterations in milliseconds
-
     def __init__(self, application, drivers: Dict[int, Driver]):
         """
         :type application: common.core.ApplicationManager
@@ -161,9 +153,7 @@ class Module:
         self.id = None
         self.name = None
         self.__application = application
-        self.last_step = 0
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.piped_events = {}  # type: Dict[int, ]
 
     def get_application_manager(self):
         """
@@ -177,13 +167,7 @@ class Module:
 
     @staticmethod
     def type_name() -> str:
-        raise InvalidDriverError('Module class should implement type_name() method')
-
-    def emit(self, event_id, data=None):
-        self.__application.emit_event(self, event_id, data)
-
-    def step(self):
-        pass
+        raise InvalidDriverError('DeviceModule class should implement type_name() method')
 
     def on_initialized(self):
         pass
@@ -192,6 +176,30 @@ class Module:
         pass
 
     def validate(self):
+        pass
+
+
+class DeviceModule(Module):
+    EVENTS = []
+    ACTIONS = []  # type: List[ActionDef]
+    PARAMS = []  # type: List[ParameterDef]
+    REQUIRED_DRIVERS = []
+    IN_LOOP = True  # Indicates that instance of of this module will be queried (step method) in main application loop
+    IN_BACKGROUND = False
+    MINIMAL_ITERATION_INTERVAL = 0  # Minimum interval between iterations in milliseconds
+
+    def __init__(self, application, drivers: Dict[int, Driver]):
+        """
+        :type application: common.core.ApplicationManager
+        """
+        super().__init__(application, drivers)
+        self.last_step = 0
+        self.piped_events = {}  # type: Dict[int, ]
+
+    def emit(self, event_id, data=None):
+        self.get_application_manager().emit_event(self, event_id, data)
+
+    def step(self):
         pass
 
     @classmethod
@@ -212,7 +220,7 @@ class Module:
         return '{}({})'.format(self.type_name(), int_to_hex4str(self.typeid()))
 
 
-class StateAwareModule(Module):
+class StateAwareModule(DeviceModule):
     STATE_FIELDS = None
 
     def __init__(self, application, drivers: Dict[int, Driver]):
@@ -229,7 +237,7 @@ class StateAwareModule(Module):
 
 
 class PipedEvent(object):
-    def __init__(self, declared_in: Module = None, target: Module = None, event: EventDef = None,
+    def __init__(self, declared_in: DeviceModule = None, target: DeviceModule = None, event: EventDef = None,
                  action: ActionDef = None,
                  args: dict = None):
         self.declared_in = declared_in
@@ -240,7 +248,7 @@ class PipedEvent(object):
 
 
 class InternalEvent(object):
-    def __init__(self, sender: Module = None, event_id: int = None, data: dict = None):
+    def __init__(self, sender: DeviceModule = None, event_id: int = None, data: dict = None):
         self.sender = sender
         self.event_id = event_id
         self.data = data

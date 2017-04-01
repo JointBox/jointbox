@@ -10,13 +10,13 @@ from typing import Dict, Callable, List, Any
 from common import utils
 from .utils import int_to_hex4str
 from .errors import InvalidModuleError, InvalidDriverError, LifecycleError
-from .model import InstanceSettings, Driver, Module, InternalEvent, PipedEvent, BackgroundTask, ActionDef
+from .model import InstanceSettings, Driver, DeviceModule, InternalEvent, PipedEvent, BackgroundTask, ActionDef
 
 
 class ModuleRegistry:
     def __init__(self):
         super().__init__()
-        self.modules = {}  # type: Dict[Module]
+        self.modules = {}  # type: Dict[DeviceModule]
 
     def find_module_by_name(self, module_name):
         for x in self.modules.values():
@@ -28,19 +28,19 @@ class ModuleRegistry:
         module_class_name = module_class.__name__
         try:
             # Validations
-            if not issubclass(module_class, Module):
-                raise InvalidModuleError("Module should implement Module class")
+            if not issubclass(module_class, DeviceModule):
+                raise InvalidModuleError("DeviceModule should implement DeviceModule class")
             typeid = module_class.typeid()
             if typeid < 0:
                 raise InvalidModuleError('Incorrect module type')
             if typeid in self.modules.keys():
                 raise InvalidModuleError(
-                    'Module {} is already registered'.format(int_to_hex4str(typeid), module_class.type_name()))
+                    'DeviceModule {} is already registered'.format(int_to_hex4str(typeid), module_class.type_name()))
             self.modules[typeid] = module_class
         except InvalidModuleError as e:
             raise InvalidModuleError("Can't register module " + module_class_name + ": " + e.message, e)
 
-    def create_module_instance(self, application, typeid: int, instance_id: int, instance_name: str) -> Module:
+    def create_module_instance(self, application, typeid: int, instance_id: int, instance_name: str) -> DeviceModule:
         """
         :type application: ApplicationManager
         :return:
@@ -56,12 +56,12 @@ class ModuleRegistry:
                     if isinstance(driver_type_id_or_name, int):
                         driver = application.get_driver(driver_type_id_or_name)
                         if driver is None:
-                            raise InvalidModuleError("Module {} requires driver {} which is not available"
+                            raise InvalidModuleError("DeviceModule {} requires driver {} which is not available"
                                                      .format(cls, driver_type_id_or_name))
                         drivers[driver.typeid()] = driver
                     else:
-                        raise InvalidModuleError("Module " + str(cls) + ' is invalid. REQUIRED_DRIVERS should '
-                                                                        'contain the list of driver IDs')
+                        raise InvalidModuleError("DeviceModule " + str(cls) + ' is invalid. REQUIRED_DRIVERS should '
+                                                                              'contain the list of driver IDs')
             instance = cls(application, drivers)
             instance.id = instance_id
             instance.name = instance_name
@@ -126,7 +126,7 @@ class ApplicationManager:
     def __init__(self):
         self.__instance_settings = InstanceSettings()
         self.drivers = {}  # type: Dict[int, Driver]
-        self.devices = {}  # type: Dict[int, Module]
+        self.devices = {}  # type: Dict[int, DeviceModule]
         self.thread_manager = ThreadManager()
         self.__logger = logging.getLogger('ApplicationManager')
         self.__main_loop = []
@@ -145,7 +145,7 @@ class ApplicationManager:
     def get_driver_by_name(self, name: str) -> Driver:
         raise NotImplementedError()
 
-    def get_device_by_name(self, name: str) -> [Module, None]:
+    def get_device_by_name(self, name: str) -> [DeviceModule, None]:
         for x in self.devices.values():
             if x.name == name:
                 return x
@@ -191,7 +191,7 @@ class ApplicationManager:
         except InvalidDriverError as e:
             raise InvalidDriverError('Unable to register driver {}: '.format(driver_class_name) + e.message, e)
 
-    def register_device(self, device: Module):
+    def register_device(self, device: DeviceModule):
         self.devices[device.id] = device
         if device.IN_LOOP:
             self.__main_loop.append(device)
@@ -203,10 +203,10 @@ class ApplicationManager:
             self.__event_map[piped_event.event.id] = event_list
         event_list.append(piped_event)
 
-    def run_async_action(self, device: Module, action: ActionDef, data=None, sender=None):
+    def run_async_action(self, device: DeviceModule, action: ActionDef, data=None, sender=None):
         self.__bg_tasks_queue.put(BackgroundTask(action.callable, device, data, **dict(sender=sender)))
 
-    def emit_event(self, sender: Module, event_id: int, data: dict = None):
+    def emit_event(self, sender: DeviceModule, event_id: int, data: dict = None):
         self.__event_queue.put(InternalEvent(sender, event_id, data))
 
     def run_async(self, callable, *args, **kwargs):
@@ -236,7 +236,8 @@ class ApplicationManager:
                 pipes = self.__event_map.get(event_task.event_id, [])
                 for pipe in pipes:
                     try:
-                        pipe.action.callable(pipe.target, event_task.data, **dict(event=pipe.event, sender=event_task.sender))
+                        pipe.action.callable(pipe.target, event_task.data,
+                                             **dict(event=pipe.event, sender=event_task.sender))
                     except Exception as e:
                         self.__logger.error("Unhandled error in ${}.{}: {}".format(pipe.target, pipe.action.name, e))
             except Exception as e:
@@ -244,10 +245,10 @@ class ApplicationManager:
 
     def background_tasks_loop(self):
         while not self.__terminating and not self.__bg_tasks_queue.empty():
-            task = self.__bg_tasks_queue.get() # type: BackgroundTask
+            task = self.__bg_tasks_queue.get()  # type: BackgroundTask
             try:
                 c = task.callable
-                c(*task.args, ** task.kwargs)
+                c(*task.args, **task.kwargs)
             except Exception as e:
                 self.__logger.error("Unhandled error during background task execution: {}".format(e))
 

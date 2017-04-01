@@ -5,7 +5,7 @@ from typing import List, Dict
 from common.drivers import GPIODriver
 from common.utils import capture_time
 from common import validators
-from common.model import Module, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
+from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
 
 RELEASED = 0
 PRESSED = 1
@@ -15,7 +15,7 @@ EVENT_LONG_CLICK = 0x02
 EVENT_DOUBLE_CLICK = 0x03
 
 
-class ButtonModule(Module):
+class ButtonModule(DeviceModule):
     def __init__(self, application, drivers: Dict[int, Driver]):
         super().__init__(application, drivers)
         self.__logger = logging.getLogger('ButtonModule')

@@ -3,14 +3,14 @@ from typing import Dict
 from common.config_parser import ACLParser
 from common.drivers import DataChannelDriver
 from common.errors import RPCError
-from common.model import Module, ParameterDef, ActionDef, Driver, EventDef, ModelState, ACL
+from common.model import DeviceModule, ParameterDef, ActionDef, Driver, EventDef, ModelState, ACL
 from common import validators
 
 ACTION_PUSH = 0x01
 ACTION_PUSH_STATE = 0x02
 
 
-class CommunicationBusModule(Module):
+class CommunicationBusModule(DeviceModule):
     TOPIC_PREFIX = 'rmod'
     TOPIC_STATE_SUFFIX = '/state'
     TOPIC_ACTION_SUFFIX = '/action'
@@ -68,7 +68,7 @@ class CommunicationBusModule(Module):
         if self.channel.is_connected():
             self.channel.send('TODO', data)
 
-    def push_state(self, data: ModelState = None, event: EventDef = None, sender: Module = None, **kwargs):
+    def push_state(self, data: ModelState = None, event: EventDef = None, sender: DeviceModule = None, **kwargs):
         if not self.channel.is_connected():
             return  # We can't sync message until establish connection
         try:

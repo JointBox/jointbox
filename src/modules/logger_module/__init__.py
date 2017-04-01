@@ -2,12 +2,12 @@ import logging
 
 from typing import Dict
 
-from common.model import Module, Driver, ActionDef, EventDef
+from common.model import DeviceModule, Driver, ActionDef, EventDef
 
 ACTION_LOG = 0x01
 
 
-class LoggerModule(Module):
+class LoggerModule(DeviceModule):
     def __init__(self, application, drivers: Dict[int, Driver]):
         super().__init__(application, drivers)
         self.__logger = None

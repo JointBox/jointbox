@@ -1,5 +1,3 @@
-from random import random
-
 from typing import Dict
 
 from common.drivers import OneWireDriver

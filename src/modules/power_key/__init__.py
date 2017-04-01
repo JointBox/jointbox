@@ -3,7 +3,7 @@ import logging
 from typing import List, Dict
 
 from common.drivers import GPIODriver
-from common.model import Module, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
+from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
 
 ACTION_OFF = 0x01
 ACTION_ON = 0x02

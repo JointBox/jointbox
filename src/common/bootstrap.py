@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 from common import parse_utils
 from common.drivers import ModuleDiscoveryDriver
-from common.model import Module, PipedEvent
+from common.model import DeviceModule, PipedEvent
 from common.utils import int_to_hex4str
 from modules import StandardModulesOnlyDriver
 from .errors import ConfigValidationError, InvalidDriverError
@@ -88,7 +88,7 @@ def __load_drivers(config: dict, application: ApplicationManager):
         application.register_driver(StandardModulesOnlyDriver)
 
 
-def __instantiate_devices(config: dict, application: ApplicationManager) -> List[Tuple[Module, dict]]:
+def __instantiate_devices(config: dict, application: ApplicationManager) -> List[Tuple[DeviceModule, dict]]:
     devices_with_config = []
     devices = config.get('devices', {})
     counter = 0x0200
@@ -128,7 +128,7 @@ def __instantiate_devices(config: dict, application: ApplicationManager) -> List
     return devices_with_config
 
 
-def __build_pipes(devices_and_configs: List[Tuple[Module, dict]], application: ApplicationManager):
+def __build_pipes(devices_and_configs: List[Tuple[DeviceModule, dict]], application: ApplicationManager):
     for pair in devices_and_configs:
         device, device_config = pair
         pipe_data = device_config.get('pipe')
