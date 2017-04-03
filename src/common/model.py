@@ -18,17 +18,24 @@ class InstanceSettings:
         self.context_path = []
 
 
-class Driver(object):
-    def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
-
+class IdentifiableComponent(object):
     @staticmethod
     def typeid() -> int:
         return -1
 
     @staticmethod
     def type_name() -> str:
-        raise InvalidDriverError('Driver class should implement type_name() method')
+        raise InvalidDriverError('Class should implement type_name() method')
+
+
+class CliExtensionsAwareComponent(IdentifiableComponent):
+    CLI_NAMESPACE = None # type: str
+    CLI_EXTENSIONS = []  # type: List[CliExtension]
+
+
+class Driver(CliExtensionsAwareComponent):
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def on_initialized(self, application):
         """
@@ -174,9 +181,7 @@ class CliExtension(object):
         raise NotImplementedError()
 
 
-class Module:
-    CLI_EXTENSIONS = []     # type: List[CliExtension]
-
+class Module(CliExtensionsAwareComponent):
     def __init__(self, application, drivers: Dict[int, Driver]):
         """
         :type application: common.core.ApplicationManager
@@ -191,14 +196,6 @@ class Module:
         :rtype application: ApplicationManager
         """
         return self.__application
-
-    @staticmethod
-    def typeid() -> int:
-        return -1
-
-    @staticmethod
-    def type_name() -> str:
-        raise InvalidDriverError('DeviceModule class should implement type_name() method')
 
     def on_initialized(self):
         pass

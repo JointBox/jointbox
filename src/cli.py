@@ -61,6 +61,9 @@ if __name__ == '__main__':
             p = module_parser.add_parser(namespace)
             namespace_parsers[namespace] = p.add_subparsers(title='module_cmd', dest='module_cmd')
         ext_parser = namespace_parsers[namespace]
+        if ext.COMMAND_NAME is None:
+            raise Exception(
+                "Invalid CLI Extension: {}. COMMAND_NAME needs to be defined".format(ext.__class__.__name__))
         ext_subparser = ext_parser.add_parser(ext.COMMAND_NAME,
                                               help=ext.COMMAND_DESCRIPTION)
         ext.setup_parser(ext_subparser)

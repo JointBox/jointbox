@@ -9,10 +9,21 @@ from typing import Dict, Callable, List, Any
 from typing import Tuple
 
 from common import utils
-from common.model import CliExtension
+from common.model import CliExtension, CliExtensionsAwareComponent
 from .utils import int_to_hex4str
 from .errors import InvalidModuleError, InvalidDriverError, LifecycleError
 from .model import InstanceSettings, Driver, DeviceModule, InternalEvent, PipedEvent, BackgroundTask, ActionDef, Module
+
+
+def _register_cli_extensions(application, source_class: CliExtensionsAwareComponent):
+    """
+    :type application: ApplicationManager
+    """
+    if application.get_instance_settings().enable_cli:
+        for extension in source_class.CLI_EXTENSIONS:
+            namespace = source_class.CLI_NAMESPACE if source_class.CLI_NAMESPACE is not None \
+                else source_class.type_name()
+            application.cli_extensions.append((namespace, extension))
 
 
 class ModuleRegistry:
@@ -40,11 +51,7 @@ class ModuleRegistry:
                 raise InvalidModuleError(
                     'DeviceModule {} is already registered'.format(int_to_hex4str(typeid), module_class.type_name()))
             # Process CLI Extensions if needed
-            if self.__application.get_instance_settings().enable_cli:
-                for extension in module_class.CLI_EXTENSIONS:
-                    namespace = module_class.CLI_NAMESPACE if module_class.CLI_NAMESPACE is not None \
-                        else module_class.type_name()
-                    self.__application.cli_extensions.append((namespace, extension))
+            _register_cli_extensions(self.__application, module_class)
             self.modules[typeid] = module_class
         except InvalidModuleError as e:
             raise InvalidModuleError("Can't register module " + module_class_name + ": " + e.message, e)
@@ -191,6 +198,8 @@ class ApplicationManager:
             if typeid in self.drivers.keys():
                 raise InvalidDriverError(
                     'Driver implementation for {} is already registered'.format(driver_impl_class.type_name()))
+            # Process CLI Extensions if needed
+            _register_cli_extensions(self, driver_impl_class)
             # Initialization
             driver_impl = driver_impl_class()
             try:
