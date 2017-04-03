@@ -3,6 +3,7 @@ import sys
 import gc
 import logging
 import os.path
+import yaml
 from typing import List, Tuple
 
 from common import parse_utils
@@ -18,8 +19,35 @@ MODULE_DISCOVERY_DRIVER = ModuleDiscoveryDriver.typeid()
 __logger = logging.getLogger('Bootstrap')
 
 
+def read_config(config_file) -> dict:
+    if isinstance(config_file, str):
+        config_file = open(config_file, mode='r')
+    try:
+        return yaml.load(config_file)
+    finally:
+        if hasattr(config_file, 'close'):
+            config_file.close()
+
+
 def bootstrap(config: dict) -> ApplicationManager:
-    application = ApplicationManager()
+    application = bootstrap_environment(config)
+    # Instantiate components
+    devices_and_configs = __instantiate_devices(config, application)
+    # Build pipe table
+    __build_pipes(devices_and_configs, application)
+    # Initialize components
+
+    # Run event handling loop
+    application.thread_manager.request_thread('EventLoop', application.event_loop,
+                                              step_interval=application.EVENT_HANDLING_LOOP_INTERVAL)
+    application.thread_manager.request_thread('BgLoop', application.background_tasks_loop,
+                                              step_interval=application.BG_TASK_HANDLING_LOOP_INTERVAL)
+
+    return application
+
+
+def bootstrap_environment(config: dict, enable_cli=False) -> ApplicationManager:
+    application = new_application(enable_cli)
     # Save instance config
     __logger.info('Reading config file')
     __save_instance_config(config, application)
@@ -34,18 +62,16 @@ def bootstrap(config: dict) -> ApplicationManager:
     # Discover modules
     module_discovery_driver = application.get_driver(MODULE_DISCOVERY_DRIVER)
     module_discovery_driver.discover_modules(application.get_module_registry())
-    # Instantiate components
-    devices_and_configs = __instantiate_devices(config, application)
-    # Build pipe table
-    __build_pipes(devices_and_configs, application)
-    # Initialize components
+    return application
 
-    # Run event handling loop
-    application.thread_manager.request_thread('EventLoop', application.event_loop,
-                                              step_interval=application.EVENT_HANDLING_LOOP_INTERVAL)
-    application.thread_manager.request_thread('BgLoop', application.background_tasks_loop,
-                                              step_interval=application.BG_TASK_HANDLING_LOOP_INTERVAL)
 
+def bootstrap_cli(config: dict) -> ApplicationManager:
+    return bootstrap_environment(config, True)
+
+
+def new_application(enable_cli=True):
+    application = ApplicationManager()
+    application.get_instance_settings().enable_cli = enable_cli
     return application
 
 

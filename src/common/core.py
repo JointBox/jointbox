@@ -6,17 +6,20 @@ from queue import Queue
 from threading import Thread
 
 from typing import Dict, Callable, List, Any
+from typing import Tuple
 
 from common import utils
+from common.model import CliExtension
 from .utils import int_to_hex4str
 from .errors import InvalidModuleError, InvalidDriverError, LifecycleError
-from .model import InstanceSettings, Driver, DeviceModule, InternalEvent, PipedEvent, BackgroundTask, ActionDef
+from .model import InstanceSettings, Driver, DeviceModule, InternalEvent, PipedEvent, BackgroundTask, ActionDef, Module
 
 
 class ModuleRegistry:
-    def __init__(self):
+    def __init__(self, application_manager):
         super().__init__()
         self.modules = {}  # type: Dict[DeviceModule]
+        self.__application = application_manager  # type: ApplicationManager
 
     def find_module_by_name(self, module_name):
         for x in self.modules.values():
@@ -28,7 +31,7 @@ class ModuleRegistry:
         module_class_name = module_class.__name__
         try:
             # Validations
-            if not issubclass(module_class, DeviceModule):
+            if not issubclass(module_class, Module):
                 raise InvalidModuleError("DeviceModule should implement DeviceModule class")
             typeid = module_class.typeid()
             if typeid < 0:
@@ -36,6 +39,12 @@ class ModuleRegistry:
             if typeid in self.modules.keys():
                 raise InvalidModuleError(
                     'DeviceModule {} is already registered'.format(int_to_hex4str(typeid), module_class.type_name()))
+            # Process CLI Extensions if needed
+            if self.__application.get_instance_settings().enable_cli:
+                for extension in module_class.CLI_EXTENSIONS:
+                    namespace = module_class.CLI_NAMESPACE if module_class.CLI_NAMESPACE is not None \
+                        else module_class.type_name()
+                    self.__application.cli_extensions.append((namespace, extension))
             self.modules[typeid] = module_class
         except InvalidModuleError as e:
             raise InvalidModuleError("Can't register module " + module_class_name + ": " + e.message, e)
@@ -49,6 +58,8 @@ class ModuleRegistry:
             if typeid not in self.modules:
                 raise InvalidModuleError("Unknown module type:".format(typeid))
             cls = self.modules.get(typeid)  # type: class[Module]
+            if not issubclass(cls, DeviceModule):
+                raise InvalidModuleError("DeviceModule should implement DeviceModule class")
             # Resolve required drivers
             drivers = {}
             if cls.REQUIRED_DRIVERS is not None:
@@ -127,10 +138,11 @@ class ApplicationManager:
         self.__instance_settings = InstanceSettings()
         self.drivers = {}  # type: Dict[int, Driver]
         self.devices = {}  # type: Dict[int, DeviceModule]
+        self.cli_extensions = []  # type: List[Tuple[str, CliExtension]]
         self.thread_manager = ThreadManager()
         self.__logger = logging.getLogger('ApplicationManager')
         self.__main_loop = []
-        self.__module_registry = ModuleRegistry()
+        self.__module_registry = ModuleRegistry(self)
         self.__terminating = False
         self.__event_queue = Queue()
         self.__bg_tasks_queue = Queue()

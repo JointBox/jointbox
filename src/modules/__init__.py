@@ -2,6 +2,7 @@ import logging
 from common.drivers import ModuleDiscoveryDriver
 from common.core import ModuleRegistry
 from modules.button import ButtonModule
+from modules.cli_mng import CliMngModule
 from modules.communication_bus import CommunicationBusModule
 from modules.logger_module import LoggerModule
 from modules.onewire_thermometer import OneWireThermometerModule
@@ -15,6 +16,7 @@ class StandardModulesOnlyDriver(ModuleDiscoveryDriver):
 
     def discover_modules(self, module_registry: ModuleRegistry):
         self.__logger.info("Do discovery!")
+        module_registry.register(CliMngModule)
         module_registry.register(PowerKeyModule)
         module_registry.register(LoggerModule)
         module_registry.register(CommunicationBusModule)

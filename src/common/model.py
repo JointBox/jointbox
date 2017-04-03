@@ -1,6 +1,8 @@
 import json
 
 import logging
+from argparse import ArgumentParser
+
 from typing import List, Dict, Callable
 
 from common.utils import int_to_hex4str
@@ -12,6 +14,7 @@ EVENT_STATE_CHANGED = 0x91
 class InstanceSettings:
     def __init__(self):
         self.id = None
+        self.enable_cli = False
         self.context_path = []
 
 
@@ -145,7 +148,35 @@ class ModelState(object):
             return object.__setattr__(self, name, value)
 
 
+class CliExtension(object):
+    """
+    Allows Module to extend CLI interface
+    """
+    COMMAND_NAME = None
+    COMMAND_DESCRIPTION = None
+
+    def __init__(self, parser: ArgumentParser, application):
+        """
+        :type application: common.core.ApplicationManager
+        """
+        super().__init__()
+        self.parser = parser
+        self.__application_manager = application
+
+    def get_application_manager(self):
+        return self.__application_manager
+
+    @classmethod
+    def setup_parser(cls, parser: ArgumentParser):
+        pass
+
+    def handle(self, args):
+        raise NotImplementedError()
+
+
 class Module:
+    CLI_EXTENSIONS = []     # type: List[CliExtension]
+
     def __init__(self, application, drivers: Dict[int, Driver]):
         """
         :type application: common.core.ApplicationManager
@@ -322,7 +353,7 @@ class ACL(object):
     def deny(self, device_name: str, target_name: str, target_type: str):
         self.__denied.append(ACL.Entry(device_name, target_type, target_name))
 
-    def __has_entry(self, collection:List[Entry], device_name: str, target_name: str, target_type: str):
+    def __has_entry(self, collection: List[Entry], device_name: str, target_name: str, target_type: str):
         for entry in collection:
             if entry.device_name == device_name and entry.target_name == target_name and entry.target_type == target_type:
                 return True
