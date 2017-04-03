@@ -1,6 +1,7 @@
 from typing import List, Callable
 
-from .model import Driver
+from common.utils import CLI
+from .model import Driver, CliExtension
 
 
 class GPIODriver(Driver):
@@ -108,6 +109,23 @@ class DataChannelDriver(Driver):
 
 
 class OneWireDriver(Driver):
+    class ScanLineCliExtension(CliExtension):
+        COMMAND_NAME = "scan"
+        COMMAND_DESCRIPTION = "Scans 1-wire line and outputs all identified devices"
+
+        def handle(self, args):
+            try:
+                devices = self.get_application_manager().get_driver(OneWireDriver.typeid()).get_available_devices()
+                for d in devices:
+                    CLI.print_data("* {}".format(d))
+            except Exception as e:
+                CLI.print_error("Unable to scan 1-wire line: " + str(e))
+
+    CLI_NAMESPACE = 'w1'
+    CLI_EXTENSIONS = [
+        ScanLineCliExtension
+    ]
+
     @staticmethod
     def typeid() -> int:
         return 0x1004
