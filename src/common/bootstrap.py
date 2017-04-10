@@ -31,6 +31,10 @@ def read_config(config_file) -> dict:
 
 def bootstrap(config: dict) -> ApplicationManager:
     application = bootstrap_environment(config)
+    return bootstrap_from_cli(config, application)
+
+
+def bootstrap_from_cli(config: dict, application: ApplicationManager) -> ApplicationManager:
     # Instantiate components
     devices_and_configs = __instantiate_devices(config, application)
     # Build pipe table

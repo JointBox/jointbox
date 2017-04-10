@@ -1,9 +1,17 @@
+#!/usr/bin/python3 -Es
+
 import argparse
+
+import gc
+
+import logging
 import os
 
+import app
 from common import bootstrap
 
 # Locations to be tried for guessing config file if none specified
+from common.model import CliExtension
 from common.utils import CLI
 
 DEFAULT_CONFIG_LOCATIONS = [
@@ -31,7 +39,28 @@ module_parser = parser.add_subparsers(title="module",
                                       description='Use \"<MODULE_NAME> -h\" to get information '
                                                   'about command available for particular module')
 
+_config = None
 namespace_parsers = {}
+
+
+class ServerRunCLIExtension(CliExtension):
+    COMMAND_NAME = 'run'
+    COMMAND_DESCRIPTION = 'Runs joint-box server in the interactive mode'
+
+    def handle(self, args):
+        global _config
+        bootstrapped_app = bootstrap.bootstrap_from_cli(_config, self.get_application_manager())
+        app.run_application(_config, bootstrapped_app)
+
+
+class ServerStartDaemonCLIExtension(CliExtension):
+    COMMAND_NAME = 'start'
+    COMMAND_DESCRIPTION = 'Starts server in the daemon mode'
+
+    def handle(self, args):
+        global _config
+        bootstrapped_app = bootstrap.bootstrap_from_cli(_config, self.get_application_manager())
+        app.run_application(_config, bootstrapped_app)
 
 
 def get_default_config_path():
@@ -41,7 +70,7 @@ def get_default_config_path():
     return None
 
 
-if __name__ == '__main__':
+def read_config_from_arguments() -> dict:
     known, unknown = supplementary_parser.parse_known_args()
     if known.config is None:
         config_path = get_default_config_path()
@@ -51,10 +80,18 @@ if __name__ == '__main__':
     if config_path:
         CLI.print_info("Loaded config: " + os.path.realpath(config_path))
         CLI.print_info("")
-        config = bootstrap.read_config(config_path)
+        return bootstrap.read_config(config_path)
     else:
-        config = {}
-    application = bootstrap.bootstrap_cli(config)
+        return {}
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    _config = read_config_from_arguments()
+    application = bootstrap.bootstrap_cli(_config)
+    # Register system CLI commands
+    application.cli_extensions.append(
+        ('server', ServerRunCLIExtension)
+    )
     # process CLI extensions
     for namespace, ext in application.cli_extensions:
         if namespace not in namespace_parsers.keys():
@@ -70,6 +107,7 @@ if __name__ == '__main__':
         ext_instance = ext(ext_subparser, application)
         ext_subparser.set_defaults(handler=ext_instance)
 
+    gc.collect()
     args = parser.parse_args()
     if hasattr(args, "handler"):
         args.handler.handle(args)
