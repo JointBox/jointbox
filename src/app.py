@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -Es
+#!/usr/bin/env python -Es
 
 import gc
 import logging

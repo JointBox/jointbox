@@ -4,7 +4,7 @@ from typing import Dict
 
 from common.model import DeviceModule, Driver, ActionDef, EventDef
 
-ACTION_LOG = 0x01
+ACTION_LOG = 0x010101
 
 
 class LoggerModule(DeviceModule):

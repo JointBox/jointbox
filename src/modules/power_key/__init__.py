@@ -5,10 +5,10 @@ from typing import List, Dict
 from common.drivers import GPIODriver
 from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
 
-ACTION_OFF = 0x01
-ACTION_ON = 0x02
-ACTION_TOGGLE = 0x03
-ACTION_SET_STATE = 0x04
+ACTION_OFF = 0x010001
+ACTION_ON = 0x010002
+ACTION_TOGGLE = 0x010003
+ACTION_SET_STATE = 0x010004
 
 
 class PowerKeyModule(StateAwareModule):
@@ -36,7 +36,7 @@ class PowerKeyModule(StateAwareModule):
         self.set_state(False)
 
     def on(self, data=None, **kwargs):
-        self.set_state(False)
+        self.set_state(True)
 
     def toggle(self, data=None, **kwargs):
         self.set_state(not self.is_on)

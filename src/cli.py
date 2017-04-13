@@ -1,5 +1,4 @@
-#!/usr/bin/python3 -Es
-
+#!/usr/bin/env python
 import argparse
 
 import gc
@@ -23,7 +22,7 @@ supplementary_parser = argparse.ArgumentParser(add_help=False)
 supplementary_parser.add_argument("-c", "--config", dest='config', type=argparse.FileType('r'), required=False,
                                   help="File containing JointBox configuration in yaml or JSON format")
 
-parser = argparse.ArgumentParser(prog='jointbox',
+parser = argparse.ArgumentParser(prog='jointbox', add_help=True,
                                  description='Your DIY Smart home. Made easy.',
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 

@@ -1,0 +1,67 @@
+instance:
+  id: "controller-1"
+  classpath:
+    - ../testpackage
+
+drivers:
+  - class: opi.drivers.OpiH3GPIODriver
+  - class: unix.drivers.MQTTDriver
+  - class: unix.sysfs.w1.SysfsOneWireDriver
+
+devices:
+  # Virtual System Devices
+  central_bus:
+    module_name: CommunicationBus
+    name: 'Central Bus'
+    server_address: 10.17.1.5
+    server_port: 1883
+    bind_address: 0.0.0.0
+    acl:
+      mode: restrictive
+      allow:
+        - '#bedroom_lamp_1.state'
+        - '#bedroom_lamp_2.state'
+
+  dummy_logger1:
+    module_name: Logger
+
+  # Physical devices
+
+  bedroom_lamp_1:
+    module_name: PowerKey
+    gpio: PA11
+    pipe:
+      state_changed: ['#central_bus.push_state']
+
+  bedroom_lamp_2:
+    module_name: PowerKey
+    gpio: PA1
+
+  bedroom_lamp_3:
+    module_name: PowerKey
+    gpio: PA0
+
+  bathroom_temperature1:
+    module_name: 1wireThermometer
+    device_id: 28-000003703cbf
+#    update_interval: 5000
+
+  switch_1:
+    module_name: Button
+    gpio: PA6
+    handle_long_click: True
+    handle_double_click: True
+    pipe:
+      click: '#bedroom_lamp_2.toggle'
+      double_click: '#bedroom_lamp_1.toggle'
+      long_click:
+        - '#bedroom_lamp_1.off'
+        - '#bedroom_lamp_2.off'
+
+  moution_sensor_1:
+    module_name: MotionSensor
+    gpio: PA3
+    invert: False
+    pipe:
+      motion_detected: '#bedroom_lamp_2.on'
+      no_motion: '#bedroom_lamp_2.off'

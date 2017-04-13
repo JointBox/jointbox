@@ -10,9 +10,9 @@ from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateA
 RELEASED = 0
 PRESSED = 1
 
-EVENT_CLICK = 0x01
-EVENT_LONG_CLICK = 0x02
-EVENT_DOUBLE_CLICK = 0x03
+EVENT_CLICK = 0x010401
+EVENT_LONG_CLICK = 0x010402
+EVENT_DOUBLE_CLICK = 0x010403
 
 
 class ButtonModule(DeviceModule):

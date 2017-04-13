@@ -283,10 +283,11 @@ class InternalEvent(object):
 
 
 class BackgroundTask(object):
-    def __init__(self, callable: Callable, *args, **kwargs):
+    def __init__(self, callable: Callable, ignore_errors=False, *args, **kwargs):
         self.callable = callable
         self.kwargs = kwargs
         self.args = args
+        self.ignore_errors = ignore_errors
 
 
 class ACL(object):

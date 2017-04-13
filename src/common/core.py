@@ -230,19 +230,26 @@ class ApplicationManager:
     def emit_event(self, sender: DeviceModule, event_id: int, data: dict = None):
         self.__event_queue.put(InternalEvent(sender, event_id, data))
 
-    def run_async(self, callable, *args, **kwargs):
-        self.__bg_tasks_queue.put(BackgroundTask(callable, *args, **kwargs))
+    def run_async(self, callable, ignore_errors=False, *args, **kwargs):
+        self.__bg_tasks_queue.put(BackgroundTask(callable, ignore_errors=ignore_errors, *args, **kwargs))
 
     def main_loop(self):
         while not self.__terminating:
+
             for device in self.__main_loop:
                 if device.last_step > 0 and utils.delta_time(device.last_step) < device.MINIMAL_ITERATION_INTERVAL:
                     continue
                 try:
+                    start_time = utils.capture_time()
                     if device.IN_BACKGROUND:
                         self.run_async(device.step)
                     else:
                         device.step()
+                    delta = utils.capture_time() - start_time
+                    if delta > 100:
+                        self.__logger.warning(
+                            "Device {} might cause performance issues. It has occupied main thread for {}ms".format(
+                                device.name, delta))
                 except Exception as e:
                     self.__logger.error("Error in during main loop execution: " + str(e))
                 finally:
@@ -271,7 +278,8 @@ class ApplicationManager:
                 c = task.callable
                 c(*task.args, **task.kwargs)
             except Exception as e:
-                self.__logger.error("Unhandled error during background task execution: {}".format(e))
+                if not task.ignore_errors:
+                    self.__logger.error("Unhandled error during background task execution: {}".format(e))
 
     def shutdown(self):
         self.__logger.info("Initiating shutdown process")

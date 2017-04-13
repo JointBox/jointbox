@@ -6,8 +6,8 @@ from common.errors import RPCError
 from common.model import DeviceModule, ParameterDef, ActionDef, Driver, EventDef, ModelState, ACL
 from common import validators
 
-ACTION_PUSH = 0x01
-ACTION_PUSH_STATE = 0x02
+ACTION_PUSH = 0x011001
+ACTION_PUSH_STATE = 0x011002
 
 
 class CommunicationBusModule(DeviceModule):
@@ -63,6 +63,7 @@ class CommunicationBusModule(DeviceModule):
         self.channel = None  # type: DataChannelDriver.Channel
         self.acl = ACL()
         self._rpc_topic_prefix = self.TOPIC_PREFIX + self.TOPIC_CMD_SUFFIX
+        self.__error_printed_once = False
 
     def push(self, data=None, **kwargs):
         if self.channel.is_connected():
@@ -90,10 +91,8 @@ class CommunicationBusModule(DeviceModule):
     def step(self):
         # We just need to check if connection is alive. If not - reconnect
         if not self.channel.is_connected():
-            try:
-                self.channel.connect()
-            except Exception as e:
-                pass  # We will try to reconnect a bit later
+            self.get_application_manager().run_async(self.channel.connect, ignore_errors=True)
+            # We will try to reconnect a bit later
 
     def on_before_destroyed(self):
         self.channel.disconnect()
