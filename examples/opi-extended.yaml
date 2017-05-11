@@ -7,6 +7,7 @@ drivers:
   - class: opi.drivers.OpiH3GPIODriver
   - class: unix.drivers.MQTTDriver
   - class: unix.sysfs.w1.SysfsOneWireDriver
+  - class: unix.sysfs.i2c.I2cDriver
 
 devices:
   # Virtual System Devices

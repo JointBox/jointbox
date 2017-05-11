@@ -1,4 +1,6 @@
-from typing import List, Callable
+from argparse import ArgumentParser
+
+from typing import List, Callable, Tuple
 
 from common.utils import CLI
 from .model import Driver, CliExtension
@@ -142,3 +144,114 @@ class OneWireDriver(Driver):
 
     def read_temperature(self, device_name: str) -> float:
         pass
+
+
+class I2cDriver(Driver):
+    class ListBusesCliExtension(CliExtension):
+        COMMAND_NAME = 'buses'
+        COMMAND_DESCRIPTION = 'Returns the list of avaliable I2C buses'
+
+        def handle(self, args):
+            driver = self.get_application_manager().get_driver(I2cDriver.typeid())  # type: I2cDriver
+            buses = driver.list_buses()
+            if len(buses) == 0:
+                CLI.print_info("There are no i2c buses available")
+                return
+            CLI.print_data('  name\tid')
+            for name, id in buses:
+                CLI.print_data('* {}\t{}'.format(name, id))
+
+    class ScanBusCliExtension(CliExtension):
+        COMMAND_NAME = 'scan'
+        COMMAND_DESCRIPTION = 'Scans given i2c bus and returns the list of addresses discovered'
+
+        @classmethod
+        def setup_parser(cls, parser: ArgumentParser):
+            parser.add_argument('-b', '--bus', dest='bus', type=int, required=False, default=0,
+                                help='ID of the I2C bus. Should be an integer value. 0 by default.')
+
+    class I2cBus:
+
+        def __init__(self, bus_id: int):
+            super().__init__()
+
+        def read_byte(self, addr: int, register: int) -> int:
+            """
+            Read single byte
+            :param addr:
+            :param register:
+            :return: 1 byte
+            """
+            pass
+
+        def read_word(self, addr: int, register: int) -> int:
+            """
+            Read a single word (2 bytes) from a given register
+            :param addr: i2c address
+            :param register: Register to read
+            :return: 2-byte word
+            """
+            pass
+
+        def read_block(self, addr: int, register, length: int) -> List[int]:
+            """
+            Read a block of byte data from a given register
+            :param addr: i2c address
+            :param register: Register to read
+            :param length: length in bytes
+            :return: list of integer values
+            """
+            pass
+
+        def write_byte_data(self, addr, register, value):
+            """
+            Write a byte to a given register
+            :param addr: i2c address
+            :param register: Register to write to
+            :param value: Byte value to transmit
+            """
+            pass
+
+        def write_word_data(self, addr, register, value):
+            """
+            Read a single word (2 bytes) from a given register
+            :rtype: int
+            :param addr: i2c address
+            :param register: Register to read
+            :return: 2-byte word
+            """
+            pass
+
+        def write_block_data(self, addr, register, data):
+            """
+            Write a block of byte data to a given register
+            :param addr: i2c address
+            :param register: Start register
+            :param data: List of bytes
+            """
+            pass
+
+        def close(self):
+            pass
+
+    CLI_NAMESPACE = 'i2c'
+    CLI_EXTENSIONS = (ListBusesCliExtension,)
+
+    def __init__(self):
+        super().__init__()
+        self.__buses = {}
+        self.default_bus = 1
+
+    @staticmethod
+    def typeid() -> int:
+        return 0x1005
+
+    @staticmethod
+    def type_name() -> str:
+        return 'I2C'
+
+    def get_bus(self, bus_id=None) -> I2cBus:
+        raise NotImplementedError()
+
+    def list_buses(self) -> List[Tuple[str, int]]:
+        raise NotImplementedError()

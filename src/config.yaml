@@ -9,7 +9,9 @@ drivers:
 #  - class: unix.sysfs.gpio.SysfsGPIODriver
   - class: unix.drivers.MQTTDriver
 #  - class: unix.sysfs.w1.SysfsOneWireDriver
+  - class: unix.sysfs.i2c.I2cDriver
   - class: unix.drivers.FakeWireDriver
+
 
 devices:
   # Virtual System Devices
@@ -42,6 +44,10 @@ devices:
 #      long_click: ['#bedroom_lamp_2.off', '#bedroom_lamp_1.off']
 
 
+  ext1:
+    module_name: I2cToGPIO
+    address: 0x80
+
   bedroom_lamp_1:
     module_name: PowerKey
     gpio: PA11
@@ -50,7 +56,7 @@ devices:
 
   bedroom_lamp_2:
     module_name: PowerKey
-    gpio: PA1
+    gpio: '#ext1/1'
 
   bedroom_lamp_3:
     module_name: PowerKey

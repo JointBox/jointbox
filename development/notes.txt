@@ -16,5 +16,9 @@ options w1-sunxi gpio=12
 Orange PI links
 ---------------
 PINOUT: http://integrator.adior.ru/index.php/orangepi/478-orange-pi-gpio-sysfs
-https://pypi.python.org/pypi/pyA20
+http://integrator.adior.ru/index.php/orangepi/478-orange-pi-gpio-sysfs
 OPI GPIO: https://github.com/duxingkei33/orangepi_PC_gpio_pyH3/blob/master/examples/read_button.py
+
+
+Infrared Receiver\Emmiter, LIRC
+module sunxi-cir needs to be activated. LIRC is pre-installed in orange pi
