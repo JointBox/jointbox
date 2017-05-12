@@ -62,8 +62,7 @@ class JointBoxDaemon(run.RunDaemon):
         self.logger.info("Started main application loop")
         application.main_loop()
 
-
-if __name__ == "__main__":
+def main():
     logging.basicConfig(level=logging.DEBUG)
     try:
         args = parser.parse_args()
@@ -87,3 +86,6 @@ if __name__ == "__main__":
             daemon.restart()
     except Exception as e:
         CLI.print_error(e)
+
+if __name__ == "__main__":
+    main()

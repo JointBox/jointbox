@@ -108,7 +108,7 @@ def read_config_from_arguments() -> dict:
     else:
         return {}
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.DEBUG)
     _config = read_config_from_arguments()
     application = bootstrap.bootstrap_cli(_config)
@@ -135,3 +135,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if hasattr(args, "handler"):
         args.handler.handle(args)
+
+if __name__ == '__main__':
+    main()
