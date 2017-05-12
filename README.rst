@@ -18,7 +18,7 @@ Then follow procedure described below to prepare environment for development:
 1. Checkout git repository: ``git clone https://github.com/JointBox/jointbox.git``. Open terminal and change dir to the project root.
 2. Create virtual environment: ``virtualenv virtualenv``. Activate it: ``source ./virtualenv/bin/activate``
 3. Install development requirements: ``pip install -r requirements.txt``
-4. Configure hooks: ``ln -s ./development/pre-commit-hook.sh .git/hooks/pre-commit``
+4. Configure hooks: ``cd .git/hooks && ln -s ../../development/pre-commit-hook.sh pre-commit && cd ../..``
 5. Install application as a package in dev mode: ``cd src && ./setup.py sdist``
 6. Validate your setup:
     * Check if ``jointbox`` and ``jointboxd`` executables are in the context
