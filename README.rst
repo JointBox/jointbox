@@ -29,12 +29,10 @@ Development procedures
 ``````````````````````
 
 Ensure that all python sources contain license notice:
-
 ::
     ./development/copyright-update
 
 In order to run suplementary services under docker you may use predefined docker-compose config:
-
 ::
     cd ./development/docker
     docker-compose up -d
