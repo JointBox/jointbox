@@ -24,7 +24,15 @@ supplementary_parser.add_argument("-c", "--config", dest='config', type=argparse
 
 parser = argparse.ArgumentParser(prog='jointbox', add_help=True,
                                  description='Your DIY Smart home. Made easy.',
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+                                 formatter_class=argparse.RawDescriptionHelpFormatter, epilog="""
+--------------------------------------------------------------
+JointBox Copyright (C) 2017 Dmitry Berezovsky
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions;
+--------------------------------------------------------------
+"""
+)
 
 parser.add_argument("-c", "--config", dest='config', type=argparse.FileType('r'), required=False,
                     help="File containing JointBox configuration in yaml or JSON format")
