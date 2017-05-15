@@ -25,6 +25,7 @@ from argparse import ArgumentParser
 from common.core import ApplicationManager
 from common.model import CliExtension
 from common.utils import CLI
+from modules.pcf8574.gpio_bridge import PCF8574toGPIOBridge
 
 
 class CommonPCF8574CliExtension(CliExtension):
@@ -133,12 +134,15 @@ class PCF8574Module(DeviceModule, ExternalRefHandler):
     def handle_external_ref(self, source: [Driver, Module], args_str: str, ref_str: str) -> Any:
         if not isinstance(source, GPIODriver):
             raise ConfigError("PCF8574Module supports only GPIO driver references.")
-
-        pass
+        try:
+            pin_num = int(args_str)
+        except ValueError:
+            raise ConfigError("Invalid ref {}. Expected pin number. Example #mydevice/2")
+        return PCF8574toGPIOBridge(pin_num, self)
 
     PARAMS = [
-        ParameterDef('i2c_bus', is_required=False, validators=validators.integer),
-        ParameterDef('i2c_address', is_required=True, validators=validators.integer)
+        ParameterDef('i2c_bus', is_required=False, validators=(validators.integer,)),
+        ParameterDef('i2c_address', is_required=True, validators=(validators.integer,))
     ]
     REQUIRED_DRIVERS = [I2cDriver.typeid()]
     IN_LOOP = False
@@ -147,18 +151,3 @@ class PCF8574Module(DeviceModule, ExternalRefHandler):
         ReadPortCliExtension,
         WritePortCliExtension,
     )
-
-
-class PCF8574toGPIOBridge(GPIODriver.Channel):
-    def set_mode(self, direction: GPIOMode, resistor: GPIOResistorState = GPIOResistorState.UNKNOWN):
-        pass
-
-    def __init__(self, pcf8574: PCF8574Module):
-        super().__init__()
-        self.pcf8574 = pcf8574
-
-    def write(self, state: [GPIOState, int, bool]):
-        super().write(state)
-
-    def read(self, reverse=False) -> GPIOState:
-        return super().read(reverse)

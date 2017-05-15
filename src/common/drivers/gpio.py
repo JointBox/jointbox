@@ -108,27 +108,28 @@ class GPIODriver(Driver):
         :param pin_ref: 
         :return: 
         """
+        self.logger.debug('handle ref!')
         match = PINREF_REGEX.match(pin_ref)
         if match is None:
-            return None
+            raise ConfigError("Invalid pinref \'{}\'. Valid ref example: #mydevice/1")
         device_name, pin_arg = match.groups()
         device = self._application_manager.get_device_by_name(device_name)
         if device is None:
             raise ConfigError("Invalid pinref \'{}\'. Device {} not found".format(pin_ref, device_name))
         if isinstance(device, ExternalRefHandler):
             try:
-                channel = device.handle_external_ref(pin_arg, pin_arg, pin_ref)
+                channel = device.handle_external_ref(self, pin_arg, pin_ref)
                 if channel is not None and not isinstance(channel, GPIODriver.Channel):
                     raise Exception("Invalid result from ref handler {}. Expected GPIODriver.Channel but got {}".format(
                         device.__class__.__name__, channel.__class__.__name__))
+                return channel
             except Exception as e:
                 raise ConfigError("Unable to handle external ref: " + str(e), e)
         else:
             raise ConfigError("Invalid pinref \'{}\'. Target device should implement ExternalRefHandler"
                               .format(pin_ref))
-        return None
 
-    def __canonize_pin_name(self, pin: [str, int]) -> [str, int, Channel]:
+    def resolve_pin_name(self, pin: [str, int]) -> [str, int, Channel]:
         """
         Parses string defining external reference for GPIO channel builder.
         It may either convert given pin number value to canonical form supported by GPIO library or 
@@ -137,7 +138,7 @@ class GPIODriver(Driver):
         """
         result = None
         if isinstance(pin, str) and pin.startswith('#'):
-            self._handle_pinref_string(pin)
+            result = self._handle_pinref_string(pin)
         else:
             pass  # implement other transformation logic here
         if result is not None:

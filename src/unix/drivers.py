@@ -18,10 +18,10 @@ import json
 import logging
 import paho.mqtt.client as mqtt
 import random
-from typing import List
+from typing import List, Tuple
 
 from common.core import ApplicationManager
-from common.drivers import DataChannelDriver, OneWireDriver
+from common.drivers import DataChannelDriver, OneWireDriver, I2cDriver
 from common.drivers.gpio import GPIODriver
 from common.errors import ConfigError
 
@@ -32,6 +32,9 @@ class FakeGPIODriver(GPIODriver):
         self.__logger = logging.getLogger('FakeGPIODriver')
 
     def new_channel(self, pin: [str, int], direction: int, pullup=True) -> GPIODriver.Channel:
+        pin = self.resolve_pin_name(pin)
+        if isinstance(pin, GPIODriver.Channel):
+            return pin
         return GPIODriver.Channel()
 
 
@@ -43,6 +46,17 @@ class FakeWireDriver(OneWireDriver):
 
     def read_temperature(self, device_name: str) -> float:
         return random.uniform(20.0, 31.0)
+
+
+class FakeI2cDriver(I2cDriver):
+    class I2cBus(I2cDriver.I2cBus):
+        pass
+
+    def list_buses(self) -> List[Tuple[str, int]]:
+        return [('bus0', 0), ('bus1', 1)]
+
+    def get_bus(self, bus_id=None) -> I2cBus:
+        return FakeI2cDriver.I2cBus(bus_id)
 
 
 class MQTTDriver(DataChannelDriver):
@@ -69,6 +83,7 @@ class MQTTDriver(DataChannelDriver):
                         channel.on_connect(client)
                     except Exception as e:
                         channel.logger.error("Error while running on_connect callback: " + str(e))
+
                 return cb
 
             @staticmethod

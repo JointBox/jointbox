@@ -21,7 +21,7 @@ from modules.button import ButtonModule
 from modules.cli_mng import CliMngModule
 from modules.communication_bus import CommunicationBusModule
 from modules.dhtxx import DHTxxModule
-from modules.gpio_expander import PCF8574Module
+from modules.pcf8574 import PCF8574Module
 from modules.logger_module import LoggerModule
 from modules.motion_sensor import MotionSensorModule
 from modules.onewire_thermometer import OneWireThermometerModule

@@ -474,6 +474,9 @@ class SysfsGPIODriver(GPIODriver):
 
     def new_channel(self, pin: [str, int], direction: GPIOMode,
                     resistor_mode: GPIOResistorState = GPIOResistorState.PULLUP) -> SysfsChannel:
+        pin = self.resolve_pin_name(pin)
+        if isinstance(pin, GPIODriver.Channel):
+            return pin
         pin = self.__gpio_controller.alloc_pin(pin, (INPUT if GPIOMode.READ == direction else OUTPUT))
         return SysfsGPIODriver.SysfsChannel(pin)
 

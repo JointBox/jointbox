@@ -64,6 +64,9 @@ class OpiH3GPIODriver(GPIODriver):
 
     def new_channel(self, pin: [str, int], direction: GPIOMode,
                     resistor_mode: GPIOResistorState = GPIOResistorState.PULLUP) -> OpiH3Channel:
+        pin = self.resolve_pin_name(pin)
+        if isinstance(pin, GPIODriver.Channel):
+            return pin
         try:
             pin = getattr(self.__port, pin)
         except Exception as e:

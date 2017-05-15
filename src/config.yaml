@@ -9,7 +9,7 @@ drivers:
 #  - class: unix.sysfs.gpio.SysfsGPIODriver
   - class: unix.drivers.MQTTDriver
 #  - class: unix.sysfs.w1.SysfsOneWireDriver
-  - class: unix.sysfs.i2c.I2cDriver
+  - class: unix.drivers.FakeI2cDriver
   - class: unix.drivers.FakeWireDriver
 
 
@@ -45,8 +45,9 @@ devices:
 
 
   ext1:
-    module_name: I2cToGPIO
-    address: 0x80
+    module_name: PCF8574
+    i2c_bus: 1
+    i2c_address: 0x38
 
   bedroom_lamp_1:
     module_name: PowerKey

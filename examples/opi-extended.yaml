@@ -36,7 +36,8 @@ devices:
 
   bedroom_lamp_2:
     module_name: PowerKey
-    gpio: PA1
+#    gpio: PA1
+    gpio: '#gpio_expander1/0'
 
   bedroom_lamp_3:
     module_name: PowerKey

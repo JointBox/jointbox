@@ -162,7 +162,7 @@ def __instantiate_devices(config: dict, application: ApplicationManager) -> List
                                                 'Parameter {} is required'.format(param_def.name))
             # Run validation of the overall device
             instance.validate()
-            instance.on_initialized()
+            #instance.on_initialized()
         except Exception as e:
             raise ConfigValidationError("devices/" + name, "Invalid device configuration: " + str(e), e)
         application.register_device(instance)
@@ -206,3 +206,4 @@ def __build_pipes(devices_and_configs: List[Tuple[DeviceModule, dict]], applicat
                     )
                     application.register_pipe(piped_event)
                     __logger.info('Piped event "{}" from #{} -> {}'.format(event_name, device.name, link_string))
+        device.on_initialized()
