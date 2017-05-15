@@ -32,3 +32,9 @@ def parse_link_string(link_string: str) -> Tuple[str, str]:
     else:
         raise ConfigError('Invalid link: ' + link_string)
     return device_id, action
+
+
+def parse_int_str(input: str) -> int:
+    if isinstance(input, str):
+        return int(input, 0)
+    return input

@@ -76,6 +76,7 @@ class I2cDriver(BaseI2cDriver):
         else:
             bus = self.I2cBus(bus_id)
             self.buses[bus_id] = bus
+            return bus
 
     def on_before_unloaded(self, application):
         for bus_id, bus in self.buses.items():

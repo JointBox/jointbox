@@ -70,3 +70,8 @@ devices:
   temp_hum_sensor:
     module_name: DHTxx
     gpio: PA3
+
+  gpio_expander1:
+    module_name: PCF8574
+    i2c_bus: 1
+    i2c_address: 0x38
