@@ -59,10 +59,14 @@ devices:
         - '#bedroom_lamp_1.off'
         - '#bedroom_lamp_2.off'
 
-  moution_sensor_1:
+  motion_sensor_1:
     module_name: MotionSensor
-    gpio: PA3
+    gpio: PA7
     invert: False
     pipe:
       motion_detected: '#bedroom_lamp_2.on'
       no_motion: '#bedroom_lamp_2.off'
+
+  temp_hum_sensor:
+    module_name: DHTxx
+    gpio: PA3

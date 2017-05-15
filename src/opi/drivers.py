@@ -15,19 +15,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from common.drivers import GPIODriver
+from common.drivers.gpio import GPIODriver, GPIOMode, GPIOResistorState
 from common.errors import SimpleException
 
 
 class OpiH3GPIODriver(GPIODriver):
     class OpiH3Channel(GPIODriver.Channel):
 
-        def __init__(self, gpio, pin, mode, pullup=True):
+        def __init__(self, gpio, pin, direction: GPIOMode,
+                     resistor_mode: GPIOResistorState = GPIOResistorState.PULLUP):
+            super().__init__()
             self.__gpio = gpio
             self.pin = pin
-            self.__gpio.setcfg(pin, self.__gpio.INPUT if mode == GPIODriver.GPIO_MODE_READ else self.__gpio.OUTPUT)
-            if pullup is not None:
-                self.__gpio.pullup(pin, self.__gpio.PULLUP if pullup else self.__gpio.PULLDOWN)
+            self.set_mode(direction, resistor_mode)
 
         def write(self, state: [int, bool]):
             self.__gpio.output(self.pin, not state)
@@ -38,7 +38,16 @@ class OpiH3GPIODriver(GPIODriver):
             else:
                 return self.__gpio.input(self.pin)
 
+        def set_mode(self, direction: GPIOMode, resistor=GPIOResistorState.UNKNOWN):
+            self._mode = direction
+            self.__gpio.setcfg(self.pin,
+                               self.__gpio.INPUT if direction == GPIOMode.READ else self.__gpio.OUTPUT)
+            if resistor != GPIOResistorState.UNKNOWN:
+                self.__gpio.pullup(self.pin,
+                                   self.__gpio.PULLUP if resistor == GPIOResistorState.PULLUP else self.__gpio.PULLDOWN)
+
     def __init__(self):
+        super().__init__()
         self.__logger = logging.getLogger(self.__class__.__name__)
 
     def on_initialized(self, application):
@@ -53,10 +62,11 @@ class OpiH3GPIODriver(GPIODriver):
                                   "permissions.", e)
         gpio.init()
 
-    def new_channel(self, pin: [str, int], mode: int, pullup=True) -> OpiH3Channel:
+    def new_channel(self, pin: [str, int], direction: GPIOMode,
+                    resistor_mode: GPIOResistorState = GPIOResistorState.PULLUP) -> OpiH3Channel:
         try:
             pin = getattr(self.__port, pin)
         except Exception as e:
             raise SimpleException("Unable to use pin " + str(pin), e)
-        channel = OpiH3GPIODriver.OpiH3Channel(self.__gpio, pin, mode, pullup)
+        channel = OpiH3GPIODriver.OpiH3Channel(self.__gpio, pin, direction, resistor_mode)
         return channel

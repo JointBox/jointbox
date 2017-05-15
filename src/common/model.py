@@ -19,7 +19,7 @@ import json
 import logging
 from argparse import ArgumentParser
 
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Any
 
 from common.utils import int_to_hex4str
 from .errors import InvalidDriverError
@@ -45,7 +45,7 @@ class IdentifiableComponent(object):
 
 
 class CliExtensionsAwareComponent(IdentifiableComponent):
-    CLI_NAMESPACE = None # type: str
+    CLI_NAMESPACE = None  # type: str
     CLI_EXTENSIONS = []  # type: List[CliExtension]
 
 
@@ -220,6 +220,11 @@ class Module(CliExtensionsAwareComponent):
         pass
 
     def validate(self):
+        pass
+
+
+class ExternalRefHandler:
+    def handle_external_ref(self, source: [Driver, Module], args_str: str, ref_str: str) -> Any:
         pass
 
 

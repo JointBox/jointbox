@@ -18,7 +18,7 @@ import logging
 
 from typing import List, Dict
 
-from common.drivers import GPIODriver
+from common.drivers.gpio import GPIODriver, GPIOResistorState, GPIOMode
 from common.utils import capture_time
 from common import validators
 from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
@@ -31,6 +31,7 @@ class MotionSensorModule(DeviceModule):
     """
     HC-SR501 PIR MOTION DETECTOR https://www.mpja.com/download/31227sc.pdf
     """
+
     def __init__(self, application, drivers: Dict[int, Driver]):
         super().__init__(application, drivers)
         self.__gpioDriver = drivers.get(GPIODriver.typeid())  # type: GPIODriver
@@ -49,7 +50,8 @@ class MotionSensorModule(DeviceModule):
         return 'MotionSensor'
 
     def on_initialized(self):
-        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIODriver.GPIO_MODE_READ, pullup=self.invert)
+        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIOMode.READ,
+                                                       GPIOResistorState.from_pullup_bool(self.invert))
         self.MOTION_DETECTED_LEVEL = 0 if self.invert else 1
 
     def step(self):
@@ -63,7 +65,6 @@ class MotionSensorModule(DeviceModule):
                 self.emit(EVENT_NO_MOTION)
                 self.logger.debug('No motion')
             self.__prev_state = state
-
 
     PARAMS = [
         ParameterDef('gpio', is_required=True),

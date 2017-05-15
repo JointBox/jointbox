@@ -108,7 +108,9 @@ def read_config_from_arguments() -> dict:
     else:
         return {}
 
+
 def main():
+    global _config
     logging.basicConfig(level=logging.DEBUG)
     _config = read_config_from_arguments()
     application = bootstrap.bootstrap_cli(_config)

@@ -18,7 +18,7 @@ import logging
 
 from typing import List, Dict
 
-from common.drivers import GPIODriver
+from common.drivers.gpio import GPIODriver, GPIOResistorState, GPIOMode
 from common.utils import capture_time
 from common import validators
 from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
@@ -62,7 +62,8 @@ class ButtonModule(DeviceModule):
         return not self.handle_long_click and not self.handle_double_click
 
     def on_initialized(self):
-        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIODriver.GPIO_MODE_READ, pullup=self.pullup)
+        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIOMode.READ,
+                                                       GPIOResistorState.from_pullup_bool(self.pullup))
 
     def __register_new_state(self, state):
         if state != self.__prev_state:

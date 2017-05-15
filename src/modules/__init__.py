@@ -20,6 +20,7 @@ from common.core import ModuleRegistry
 from modules.button import ButtonModule
 from modules.cli_mng import CliMngModule
 from modules.communication_bus import CommunicationBusModule
+from modules.dhtxx import DHTxxModule
 from modules.logger_module import LoggerModule
 from modules.motion_sensor import MotionSensorModule
 from modules.onewire_thermometer import OneWireThermometerModule
@@ -41,3 +42,4 @@ class StandardModulesOnlyDriver(ModuleDiscoveryDriver):
         module_registry.register(OneWireThermometerModule)
         module_registry.register(ButtonModule)
         module_registry.register(MotionSensorModule)
+        module_registry.register(DHTxxModule)

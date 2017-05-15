@@ -42,8 +42,17 @@ def delta_time(point_in_time: int, now: int = None) -> int:
     return now - point_in_time
 
 
-class CLI:
+def busy_wait(time_in_millis):
+    """    
+    :param time_in_millis: time delta in milliseconds 
+    :return: 
+    """
+    start = capture_time()
+    while delta_time(start) < time_in_millis:
+        pass
 
+
+class CLI:
     verbose_mode = False
 
     @classmethod

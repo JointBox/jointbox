@@ -1,67 +1,25 @@
 #    JointBox - Your DIY smart home. Simplified.
 #    Copyright (C) 2017 Dmitry Berezovsky
-#    
+#
 #    JointBox is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
-#    
+#
 #    JointBox is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
-#    
+#
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
 
-from typing import List, Callable, Tuple
+from typing import List, Tuple
 
 from common.utils import CLI
-from .model import Driver, CliExtension
-
-
-class GPIODriver(Driver):
-    GPIO_MODE_READ = 0
-    GPIO_MODE_WRITE = 1
-
-    GPIO_RESISTOR_PULLUP = 0
-    GPIO_RESISTOR_PULLDOWN = 1
-
-    class Channel(object):
-        def write(self, state: [int, bool]):
-            pass
-
-        def read(self, reverse=False) -> int:
-            return 0
-
-        def mode(self):
-            return GPIODriver.GPIO_MODE_READ
-
-        def set(self):
-            self.write(True)
-
-        def reset(self):
-            self.write(False)
-
-    @staticmethod
-    def typeid() -> int:
-        return 0x1001
-
-    @staticmethod
-    def type_name() -> str:
-        return 'GPIO'
-
-    def cleanup(self):
-        """
-        Dispose all system resources related to the GPIO subsystem and resets GPIO state
-        """
-        pass
-
-    def new_channel(self, pin: [str, int], direction: int, pullup=True) -> Channel:
-        pass
-
+from ..model import Driver, CliExtension
 
 class ModuleDiscoveryDriver(Driver):
     @staticmethod

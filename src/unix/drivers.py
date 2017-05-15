@@ -21,7 +21,8 @@ import random
 from typing import List
 
 from common.core import ApplicationManager
-from common.drivers import GPIODriver, DataChannelDriver, OneWireDriver
+from common.drivers import DataChannelDriver, OneWireDriver
+from common.drivers.gpio import GPIODriver
 from common.errors import ConfigError
 
 

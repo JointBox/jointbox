@@ -39,7 +39,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from common.drivers import GPIODriver
+from common.drivers.gpio import GPIODriver, GPIOMode, GPIOResistorState
 
 __all__ = ('DIRECTIONS', 'INPUT', 'OUTPUT',
            'EDGES', 'RISING', 'FALLING', 'BOTH',
@@ -453,9 +453,16 @@ class SysfsGPIODriver(GPIODriver):
                 self.__pin.reset()
 
         def mode(self):
-            return GPIODriver.GPIO_MODE_READ if self.__pin.direction == INPUT else GPIODriver.GPIO_MODE_WRITE
+            return GPIOMode.READ if self.__pin.direction == INPUT else GPIOMode.WRITE
 
-        def read(self) -> int:
+        def set_mode(self, direction: int, resistor=GPIOResistorState.UNKNOWN):
+            raise NotImplementedError()
+            # if direction == GPIODriver.GPIO_MODE_READ:
+            #     self.__pin.direction = INPUT
+            # else:
+            #     self.__pin.direction = OUTPUT
+
+        def read(self, reverse=False) -> int:
             return self.__pin.read()
 
     def __init__(self):
@@ -465,8 +472,9 @@ class SysfsGPIODriver(GPIODriver):
     def on_initialized(self, application):
         self.__gpio_controller.available_pins = [1, 2, 3, 4, 6, 12] # TODO: This should be in params
 
-    def new_channel(self, pin: [str, int], direction: int, pullup=True) -> SysfsChannel:
-        pin = self.__gpio_controller.alloc_pin(pin, (INPUT if SysfsGPIODriver.GPIO_MODE_READ == direction else OUTPUT))
+    def new_channel(self, pin: [str, int], direction: GPIOMode,
+                    resistor_mode: GPIOResistorState = GPIOResistorState.PULLUP) -> SysfsChannel:
+        pin = self.__gpio_controller.alloc_pin(pin, (INPUT if GPIOMode.READ == direction else OUTPUT))
         return SysfsGPIODriver.SysfsChannel(pin)
 
 

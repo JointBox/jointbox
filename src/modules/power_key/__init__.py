@@ -18,7 +18,7 @@ import logging
 
 from typing import List, Dict
 
-from common.drivers import GPIODriver
+from common.drivers.gpio import GPIODriver, GPIOMode
 from common.model import DeviceModule, EventDef, ActionDef, ParameterDef, StateAwareModule, Driver
 
 ACTION_OFF = 0x010001
@@ -46,7 +46,7 @@ class PowerKeyModule(StateAwareModule):
         return 'PowerKey'
 
     def on_initialized(self):
-        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIODriver.GPIO_MODE_WRITE)
+        self.__channel = self.__gpioDriver.new_channel(self.gpio, GPIOMode.WRITE)
 
     def off(self, data=None, **kwargs):
         self.set_state(False)

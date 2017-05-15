@@ -62,6 +62,7 @@ class JointBoxDaemon(run.RunDaemon):
         self.logger.info("Started main application loop")
         application.main_loop()
 
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
     try:
@@ -86,6 +87,7 @@ def main():
             daemon.restart()
     except Exception as e:
         CLI.print_error(e)
+
 
 if __name__ == "__main__":
     main()
