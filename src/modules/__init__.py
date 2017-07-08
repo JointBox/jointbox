@@ -21,6 +21,7 @@ from modules.button import ButtonModule
 from modules.cli_mng import CliMngModule
 from modules.communication_bus import CommunicationBusModule
 from modules.dhtxx import DHTxxModule
+from modules.key_reader import KeyReaderModule
 from modules.pcf8574 import PCF8574Module
 from modules.logger_module import LoggerModule
 from modules.motion_sensor import MotionSensorModule
@@ -45,3 +46,4 @@ class StandardModulesOnlyDriver(ModuleDiscoveryDriver):
         module_registry.register(MotionSensorModule)
         module_registry.register(DHTxxModule)
         module_registry.register(PCF8574Module)
+        module_registry.register(KeyReaderModule)

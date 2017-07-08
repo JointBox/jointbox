@@ -80,7 +80,7 @@ class I2cDriver(BaseI2cDriver):
 
     def on_before_unloaded(self, application):
         for bus_id, bus in self.buses.items():
-            self.logger.info("Unloading I2C bus " + bus_id)
+            self.logger.info("Unloading I2C bus " + str(bus_id))
             bus.close()
 
 
