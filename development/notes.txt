@@ -22,3 +22,10 @@ OPI GPIO: https://github.com/duxingkei33/orangepi_PC_gpio_pyH3/blob/master/examp
 
 Infrared Receiver\Emmiter, LIRC
 module sunxi-cir needs to be activated. LIRC is pre-installed in orange pi
+
+
+```````````````````````
+ESP EASY
+``````````````````````
+::
+    esptool.py --port /dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0 write_flash 0 ./ESPEasy_v2.0.0-dev11_normal_4096.bin

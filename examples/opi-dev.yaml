@@ -1,7 +1,5 @@
 instance:
   id: "controller-1"
-  classpath:
-    - ../testpackage
 
 drivers:
   - class: jointbox_opi_zero.drivers.OpiH3GPIODriver
@@ -37,48 +35,38 @@ devices:
 
   bedroom_lamp_2:
     module_name: PowerKey
-    gpio: PA1
+    gpio: PA6
 #    gpio: '#gpio_expander1/0'
 
   bedroom_lamp_3:
     module_name: PowerKey
     gpio: PA0
 
-  bathroom_temperature1:
-    module_name: 1wireThermometer
-    device_id: 28-000003703cbf
+#  bathroom_temperature1:
+#    module_name: 1wireThermometer
+#    device_id: 28-000003703cbf
 #    update_interval: 5000
 
-  switch_1:
-    module_name: Button
-    gpio: PA6
-    handle_long_click: True
-    handle_double_click: True
-    pipe:
-      click: '#bedroom_lamp_2.toggle'
-      double_click: '#bedroom_lamp_1.toggle'
-      long_click:
-        - '#bedroom_lamp_1.off'
-        - '#bedroom_lamp_2.off'
+#  switch_1:
+#    module_name: Button
+#    gpio: PA6
+#    handle_long_click: True
+#    handle_double_click: True
+#    pipe:
+#      click: '#bedroom_lamp_2.toggle'
+#      double_click: '#bedroom_lamp_1.toggle'
+#      long_click:
+#        - '#bedroom_lamp_1.off'
+#        - '#bedroom_lamp_2.off'
 
   motion_sensor_1:
     module_name: MotionSensor
     gpio: PA7
     invert: False
     pipe:
-      motion_detected: '#bedroom_lamp_2.on'
-      no_motion: '#bedroom_lamp_2.off'
-
-#  temp_hum_sensor:
-#    module_name: DHTxx
-#    gpio: PA3
-
-#  gpio_expander1:
-#    module_name: PCF8574
-#    i2c_bus: 1
-#    i2c_address: 0x38
-
-  card_reader_1:
-    module_name: SmartCardReader
-    i2c_bus: 1
-    i2c_address: 0x24
+      motion_detected:
+        - '#bedroom_lamp_2.on'
+        - '#bedroom_lamp_3.on'
+      no_motion:
+        - '#bedroom_lamp_2.off'
+        - '#bedroom_lamp_3.off'

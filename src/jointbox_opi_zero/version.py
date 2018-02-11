@@ -14,13 +14,4 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def boolean(value):
-    return isinstance(value, bool)
-
-
-def integer(value):
-    return isinstance(value, int)
-
-
-def module_id(value):
-    return True
+version = "0.1.1"

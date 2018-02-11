@@ -1,10 +1,8 @@
-=========
 Joint Box
 =========
 
 TBD
 
------------
 Development
 -----------
 
@@ -24,15 +22,17 @@ Then follow procedure described below to prepare environment for development:
     * Check if ``jointbox`` and ``jointboxd`` executables are in the context
     * Run ``jointbox -h`` and insure that output doesn't contain exceptions
 
-``````````````````````
+
 Development procedures
 ``````````````````````
 
 Ensure that all python sources contain license notice:
-::
+
+: code:: bash
     ./development/copyright-update
 
 In order to run suplementary services under docker you may use predefined docker-compose config:
-::
+
+: code:: bash
     cd ./development/docker
     docker-compose up -d

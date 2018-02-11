@@ -14,4 +14,5 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-version = "0.1.0"
+# IMPORTANT NOTE:
+# Drivers in this package require pyA20 package installed. Run `pip install pyA20==0.2.12` prior use.

@@ -1,7 +1,3 @@
-# https://learn.adafruit.com/neopixels-on-raspberry-pi/software
-# https://learn.adafruit.com/adafruit-ft232h-breakout/spi
-# spi = SPI(1, SPI.MASTER, baudrate=6400000, polarity=0, phase=1)
-
 #    JointBox - Your DIY smart home. Simplified.
 #    Copyright (C) 2017 Dmitry Berezovsky
 #    
@@ -18,3 +14,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from jointbox.common.model import DeviceModule
+
+
+class SomeModule(DeviceModule):
+    module_name = 'SomeModule'
+    requires_thread = True

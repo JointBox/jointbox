@@ -24,21 +24,32 @@ See: https://packaging.python.org/en/latest/distributing.html
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
-from jointbox.version import version
+from jointbox_opi_zero.version import version
 
 src_dir = path.abspath(path.dirname(__file__))
 root_dir = path.join(src_dir, '..')
 
 # Get the long description from the README file
 with open(path.join(root_dir, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+    long_description = """
+Jointbox: Orange PI Zero Drivers
+================================
+
+This package provides a set of drivers for Orange PI zero board.
+
+Currently the following drivers are implemented:
+
+* GPIO - `jointbox_opi_zero.drivers.OpiH3GPIODriver`
+
+Please see jointbox package for more details: https://pypi.python.org/pypi/jointbox/
+    """
 
 setup(
-    name='jointbox',
+    name='jointbox_opi_zero',
     # Semantic versioning should be used:
     # https://packaging.python.org/distributing/?highlight=entry_points#semantic-versioning-preferred
     version=version,
-    description='Your DIY smart house. Simplified.',
+    description='Orange PI Zero specific drivers for jointbox',
     long_description=long_description,
     url='http://jointbox.org',
     keywords='home automation smarthouse arduino gpio sensors hardware temperature relay',
@@ -72,16 +83,11 @@ setup(
     ],
 
     # Structure
-    packages=find_packages(include=['jointbox', 'jointbox.*']),
-    # py_modules=["app", 'cli', 'daemonize'],
+    packages=find_packages(include=['jointbox_opi_zero']),
 
     install_requires=[
-        'PyYAML==3.11',
-        'paho-mqtt==1.1',
-        'typing==3.5.3.0',
-        'numpy==1.12.0',
-        'daemons==1.3.0',
-        'smbus2==0.1.4'
+        'jointbox>=0.1.1',
+        'pyA20==0.2.12'
     ],
 
     # Extra dependencies might be installed with:
@@ -89,16 +95,5 @@ setup(
     extras_require={
         'dev': [],
         'test': [],
-    },
-
-    package_data={
-        'examples': [path.join(root_dir, 'examples')],
-    },
-
-    entry_points={
-        'console_scripts': [
-            'jointbox=jointbox.cli:main',
-            'jointboxd=jointbox.daemonize:main',
-        ],
     }
 )
