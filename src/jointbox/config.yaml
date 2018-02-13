@@ -1,0 +1,88 @@
+instance:
+  id: "controller-1"
+  classpath:
+    - ../testpackage
+
+drivers:
+  - class: unix.drivers.FakeGPIODriver
+#  - class: opi.drivers.OpiH3GPIODriver
+#  - class: unix.sysfs.gpio.SysfsGPIODriver
+  - class: unix.drivers.MQTTDriver
+#  - class: unix.sysfs.w1.SysfsOneWireDriver
+  - class: unix.drivers.FakeI2cDriver
+  - class: unix.drivers.FakeWireDriver
+
+
+devices:
+  # Virtual System Devices
+  central_bus:
+    module_name: CommunicationBus
+    name: 'Central Bus'
+    server_address: 10.17.1.5
+    server_port: 1883
+    bind_address: 0.0.0.0
+    acl:
+      mode: restrictive
+      allow:
+        - '#bedroom_lamp_1.state'
+        - '#bedroom_lamp_2.state'
+
+  dummy_logger1:
+    module_name: Logger
+
+  # Physical devices
+
+#  bedroom_switch:
+#    module_name: Button
+#    name: 'Bedroom switch'
+#    gpio: 8
+#    handle_double_click: on
+#    handle_long_click: on
+#    pipe:
+#      click: ['#dummy_logger.log', '#bedroom_lamp_1.toggle']
+#      double_click: '#bedroom_lamp_2.toggle'
+#      long_click: ['#bedroom_lamp_2.off', '#bedroom_lamp_1.off']
+
+
+  ext1:
+    module_name: PCF8574
+    i2c_bus: 1
+    i2c_address: 0x38
+
+  bedroom_lamp_1:
+    module_name: PowerKey
+    gpio: PA11
+    pipe:
+      state_changed: ['#central_bus.push_state']
+
+  bedroom_lamp_2:
+    module_name: PowerKey
+    gpio: '#ext1/1'
+
+  bedroom_lamp_3:
+    module_name: PowerKey
+    gpio: PA0
+
+  bathroom_temperature1:
+    module_name: 1wireThermometer
+    device_id: 28-000003703cbf
+#    update_interval: 5000
+
+#  bathroom_temperature2:
+#    module_name: 1wireThermometer
+#    device_id: 25544123
+#    update_interval: 5000
+#    pipe:
+#      state_changed: '#central_bus.push_state'
+
+  switch_1:
+    module_name: Button
+    gpio: PA6
+    handle_long_click: True
+    handle_double_click: True
+    pipe:
+      click: '#bedroom_lamp_2.toggle'
+      double_click: '#bedroom_lamp_1.toggle'
+      long_click:
+        - '#bedroom_lamp_1.off'
+        - '#bedroom_lamp_2.off'
