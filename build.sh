@@ -30,9 +30,11 @@ do
     case $module in
         jointbox)
         module="setup.py"
+        shift
         ;;
         opi)
         module="setup_opi_zero.py"
+        shift
         ;;
         *)
         module="setup.py"
